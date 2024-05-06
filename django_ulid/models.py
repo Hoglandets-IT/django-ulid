@@ -7,6 +7,7 @@
 import ulid
 from django.core import exceptions
 from django.db import models
+from django.db.models import AutoFieldMixin
 from django.utils.translation import gettext as _
 
 from . import forms
