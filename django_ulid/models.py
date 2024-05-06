@@ -64,3 +64,10 @@ class ULIDField(models.Field):
             'form_class': forms.ULIDField,
             **kwargs,
         })
+
+class ULIDAutoField(AutoFieldMixin, ULIDField):
+    def get_internal_type(self):
+        return "ULIDAutoField"
+
+    def rel_db_type(self, connection):
+        return ULIDField().db_type(connection=connection)
