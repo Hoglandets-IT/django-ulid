@@ -7,15 +7,13 @@
 import ulid
 from django.core import exceptions
 from django.db import models
-from django.db.models.fields import AutoFieldMixin
-from django.utils.translation import gettext as _
-
+from django.utils.translation import gettext_lazy as _  # Using gettext_lazy for better lazy translation
 from . import forms
-
+from django.db.models import AutoFieldMixin
+ 
 # Helper function so callers don't need to import the ulid package.
 def default():
     return ulid.new()
-
 
 class ULIDField(models.Field):
     """
@@ -23,7 +21,7 @@ class ULIDField(models.Field):
 
     This field type is natively stored in the DB as a UUID (when supported) and a string/varchar otherwise.
     """
-    description = 'Universally Unique Lexicographically Sortable Identifier'
+    description = _('Universally Unique Lexicographically Sortable Identifier')
     empty_strings_allowed = False
 
     def __init__(self, verbose_name=None, **kwargs):
@@ -46,13 +44,17 @@ class ULIDField(models.Field):
         return value.uuid if connection.features.has_native_uuid_field else str(value)
 
     def from_db_value(self, value, expression, connection):
+        if value is None:
+            return None
         return self.to_python(value)
 
     def to_python(self, value):
         if value is None:
             return None
+        if isinstance(value, ulid.ULID):
+            return value
         try:
-            return ulid.parse(value)
+            return ulid.from_str(value)
         except (AttributeError, ValueError):
             raise exceptions.ValidationError(
                 _("'%(value)s' is not a valid ULID."),
@@ -61,12 +63,14 @@ class ULIDField(models.Field):
             )
 
     def formfield(self, **kwargs):
-        return super().formfield(**{
-            'form_class': forms.ULIDField,
-            **kwargs,
-        })
+        defaults = {'form_class': forms.ULIDField}
+        defaults.update(kwargs)
+        return super().formfield(**defaults)
 
 class ULIDAutoField(AutoFieldMixin, ULIDField):
+    """
+    An AutoField that uses ULID for unique identifiers.
+    """
     def get_internal_type(self):
         return "ULIDAutoField"
 
