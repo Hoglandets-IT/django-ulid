@@ -1,33 +1,24 @@
 django-ulid
 ===========
 
-|Build Status| |codecov| |Code Climate| |Issue Count|
-
-|PyPI Version| |PyPI Versions|
-
-`Universally Unique Lexicographically Sortable Identifier
-(ULID) <https://github.com/alizain/ulid>`__ support in
-`Django <https://www.djangoproject.com/>`__.
-
 Status
 ~~~~~~
 
-This project is actively maintained.
+This project is actively maintained. This is a fork from
+`hassaanalansary/django-ulid <https://github.com/hassaanalansary/django-ulid>`__
+that itself is a fork from
+`ahawker/django-ulid <https://github.com/ahawker/django-ulid>`__ and as
+such we don’t have a proper pip-package yet. For now you will manually
+need to clone this repo and manually install it to use it.
 
 Installation
 ~~~~~~~~~~~~
-
-To install django-ulid from `pip <https://pypi.python.org/pypi/pip>`__:
-
-.. code:: bash
-
-       $ pip install django-ulid
 
 To install ulid from source:
 
 .. code:: bash
 
-       $ git clone git@github.com:ahawker/django-ulid.git
+       $ git clone git@github.com:Hoglandets-IT/django-ulid.git
        $ cd django-ulid && python setup.py install
 
 Usage
@@ -127,16 +118,3 @@ Dependencies
 
 -  `Django <https://github.com/django/django>`__
 -  `ulid-py <https://github.com/ahawker/ulid>`__
-
-.. |Build Status| image:: https://travis-ci.org/ahawker/django-ulid.svg?branch=master
-   :target: https://travis-ci.org/ahawker/django-ulid
-.. |codecov| image:: https://codecov.io/gh/ahawker/django-ulid/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/ahawker/django-ulid
-.. |Code Climate| image:: https://codeclimate.com/github/ahawker/django-ulid/badges/gpa.svg
-   :target: https://codeclimate.com/github/ahawker/django-ulid
-.. |Issue Count| image:: https://codeclimate.com/github/ahawker/django-ulid/badges/issue_count.svg
-   :target: https://codeclimate.com/github/ahawker/django-ulid
-.. |PyPI Version| image:: https://badge.fury.io/py/django-ulid.svg
-   :target: https://badge.fury.io/py/django-ulid
-.. |PyPI Versions| image:: https://img.shields.io/pypi/pyversions/django-ulid.svg
-   :target: https://pypi.python.org/pypi/django-ulid
