@@ -1,25 +1,16 @@
-"""
-    django_ulid/models
-    ~~~~~~~~~~~~~~~~~~
-
-    Contains functionality for Django model support.
-"""
 import ulid
 from django.core import exceptions
 from django.db import models
-from django.utils.translation import gettext_lazy as _  # Using gettext_lazy for better lazy translation
+from django.utils.translation import gettext_lazy as _
 from . import forms
-from django.db.models import AutoFieldMixin
- 
+
 # Helper function so callers don't need to import the ulid package.
 def default():
     return ulid.new()
 
-class ULIDField(models.Field):
+class BaseULIDField(models.Field):
     """
-    Django model field type for handling ULID's.
-
-    This field type is natively stored in the DB as a UUID (when supported) and a string/varchar otherwise.
+    Base class for handling ULIDs in Django model fields.
     """
     description = _('Universally Unique Lexicographically Sortable Identifier')
     empty_strings_allowed = False
@@ -34,14 +25,18 @@ class ULIDField(models.Field):
         return name, path, args, kwargs
 
     def get_internal_type(self):
-        return 'UUIDField'
+        return 'CharField' if self.connection.vendor == 'sqlite' else 'UUIDField'
+
+    def db_type(self, connection):
+        self.connection = connection
+        return 'VARCHAR(26)' if connection.vendor == 'sqlite' else 'UUID'
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if value is None:
             return None
         if not isinstance(value, ulid.ULID):
             value = self.to_python(value)
-        return value.uuid if connection.features.has_native_uuid_field else str(value)
+        return str(value) if connection.vendor == 'sqlite' else value.uuid
 
     def from_db_value(self, value, expression, connection):
         if value is None:
@@ -67,12 +62,19 @@ class ULIDField(models.Field):
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
-class ULIDAutoField(AutoFieldMixin, ULIDField):
+
+class ULIDField(BaseULIDField, models.Field):
+    """
+    Django model field type for handling ULIDs.
+    This field type is natively stored in the DB as a UUID (when supported) and a string/varchar otherwise.
+    """
+    pass
+
+
+class ULIDAutoField(BaseULIDField, models.AutoField):
     """
     An AutoField that uses ULID for unique identifiers.
     """
-    def get_internal_type(self):
-        return "ULIDAutoField"
-
-    def rel_db_type(self, connection):
-        return ULIDField().db_type(connection=connection)
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('default', default)
+        super().__init__(*args, **kwargs)
